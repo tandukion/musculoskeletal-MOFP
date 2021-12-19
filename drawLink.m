@@ -1,9 +1,13 @@
-function drawLink(ax, joint_pos, line_color=[0 0 0], line_width=2)
-    % This function draws robot links and joints based on the given joint positions
+function drawLink(ax, ee_pos, line_color=[0 0 0], line_width=2)
+    % This function draws robot links and joints based on the given end-effector position
+    % The first joint will be drawn on (0,0) position.
     %
     % Args:
     %   - ax (Axes): Target axes to plot
-    %   - joint_pos (Arrays): Array (2xN) of joint (+ end effector) position in 2D. e.g: for 3 DoF, N=4
+    %   - ee_pos (Arrays): Array (2xN) of end-effector position of each link in 2D.
+
+    % Append the joint 1 position as (0,0)
+    joint_pos = [zeros(2,1) ee_pos];
 
     % --- Draw links ---
     % Draw lines from two consecutive joints
@@ -28,7 +32,7 @@ function drawLink(ax, joint_pos, line_color=[0 0 0], line_width=2)
         Y(:,:,i) = r(i) * sin(angle);
     end
     
-    for i = 1:length(joint_pos)
+    for i = 1:length(joint_pos)-1
         for j = 1:length(r)
             plot(ax, X(:,:,j) + joint_pos(1,i), Y(:,:,j) + joint_pos(2,i), 'Color', circle_color, 'LineWidth',line_width/2)
         end
