@@ -1,3 +1,5 @@
+% This script executes a symbolic analysis for the Forward Kinematics function.
+% Please define the number of joint to analyze the Forward Kinematics.
 
 pkg load symbolic
 
