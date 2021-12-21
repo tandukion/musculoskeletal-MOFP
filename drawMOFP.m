@@ -16,7 +16,6 @@ function drawMOFP(X,Q)
 
 
     % ====== Main figure window settings ======
-    set(gcf, 'Position', [2400, 100, 1400, 700]);  % set position and size of the figure window
 
     % ====== Subplot settings ======
     % Subplot axis parameter
@@ -24,12 +23,14 @@ function drawMOFP(X,Q)
 
     % #1 Output force subplot
     ax_force = subplot(1,2,1);
+    title('Maximum Output Force Profile');
     axis equal;
     axis(axis_par);
     hold on;
 
     % #2 Compliance subplot
     ax_compliance = subplot(1,2,2);
+    title('Compliance Profile');
     axis equal;
     axis(axis_par);
     hold on;
