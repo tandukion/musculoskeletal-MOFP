@@ -24,8 +24,13 @@ function Vres = outputForceDistribution(V)
     % Based on the paper, the hexagon of output force distribution can be created by computing the resultant vectors for every two consecutive
     % vectors (sorted in angles), done two times.
 
+    % Based on the paper, the geometry of output force distribution can be computed by the following steps:
+    %   - For each individual vectors, compute resultant vectors with the other vectors. 
+    %   - Create convex hull from the resultant vectors
+
     % --- Nested functions ---
     function Vout = filterVector(V)
+        % This function filter Vector with X=0 and Y=0
         j = 0;
         for i = 1:length(V)
             if ~((V(1,i)==0 && (V(2,i)==0)))
@@ -39,14 +44,36 @@ function Vres = outputForceDistribution(V)
     V = filterVector(V);
 
     % Calculate the angle of each vector
-    phi = atan(V(2,:)./V(1,:));
-    for i = 1:length(V),
-        % Handle [-pi .. 0] range
-        if V(1,i) < 0,
-            phi(i) = phi(i) + pi;
-        % Handle pi/2 degree
-        elseif V(1,i) == 0,
-            phi(i) = pi/2;
+    % Handle using atan2 method
+    % phi = atan(V(2,:)./V(1,:));
+    for i = 1:length(V)
+        % Handle [-pi/2 .. pi/2]
+        if (V(1,i) > 0)
+            phi(i) = atan(V(2,i)./V(1,i));
+        else
+            % Handle [pi/2 .. pi]
+            if (V(2,i) >= 0)
+                phi(i) = atan(V(2,i)./V(1,i)) + pi;
+            
+            % Handle [-pi .. -pi/2]
+            elseif (V(2,i) < 0)
+                phi(i) = atan(V(2,i)./V(1,i)) - pi;
+            
+            % pi/2
+            elseif ((V(2,i) == 0) && (V(2,i) > 0))
+                phi(i) = pi/2;
+            
+            % -pi/2
+            elseif ((V(2,i) == 0) && (V(2,i) < 0))
+                phi(i) = -pi/2;
+            end
+        end
+    end
+
+    % Make phi in range of [0..2pi]
+    for i = 1:length(phi)
+        if (phi(i) < 0)
+            phi(i) += 2*pi;
         end
     end
 
@@ -55,7 +82,7 @@ function Vres = outputForceDistribution(V)
     V = V(:,sortId);
 
     % Check for vectors with same angle
-    [~,~,id] = unique(phi);
+    [phi,~,id] = unique(phi);
 
     % Sum any parallel vector with same angle
     Vsum = zeros(size(V));
@@ -64,27 +91,19 @@ function Vres = outputForceDistribution(V)
     end
     % Filter any zeros vector
     Vsum = filterVector(Vsum);
-
-    % Get the resultant vectors of the individual output forces
+    
+    % Create resultant vectors
+    k = 0;
     for i = 1:length(Vsum)
-        if ~(i==length(Vsum))
-            Vtemp(:,i) = Vsum(:,i) + Vsum(:,i+1);
-        
-        % Handle the last vector in the array
-        else
-            Vtemp(:,i) = Vsum(:,i) + Vsum(:,1);
+        Vres(:,i) = Vsum(:,i);  % current vector
+        for j = 1:length(Vsum)
+            if ~(i==j)
+                % Calculate vectors which only in [0..pi] ranges from the current vector
+                diff_phi = phi(j) - phi(i);
+                if ((diff_phi > 0)&&(diff_phi < pi) || (diff_phi+2*pi < pi))
+                    Vres(:,i) = Vres(:,i) + Vsum(:,j);
+                end
+            end
         end
     end
-
-    % Get the resultant vectors of the resultants (for hexagon)
-    for i = 1:length(Vtemp)
-        if ~(i==length(Vtemp))
-            Vres(:,i) = Vtemp(:,i) + Vtemp(:,i+1);
-        
-        % Handle the last vector in the array
-        else
-            Vres(:,i) = Vtemp(:,i) + Vtemp(:,1);
-        end
-    end
-
 end
