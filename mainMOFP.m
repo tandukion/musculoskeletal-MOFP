@@ -138,6 +138,12 @@ f_robot_2010 = [
 
 % ---------------------------------------------
 
+%% ------------------  MUSCLE STIFFNESS ------------------
+% Simplified muscle stiffness
+%  [GMAX, IL,  HAM, RF, BF,  VAS, GAS, NON, SOL, TA]
+k_uniform = [
+    1     1    1    1   1    1    1    1    1    1]'; % muscles set upper boundary]
+
 %% =================  MOFP calculation =================
 
 % --> Define the moment arms and forces for the muscle here
@@ -151,16 +157,29 @@ f = f_uniform;
 [X J] = forwardKinematics(L, theta);
 
 % Output force matrix needs to be in a square diagonal matrix.
-F = eye(size(f_uniform,1)) .* repmat(f, [1 10]);
+F = eye(size(f,1)) .* repmat(f, [1 length(f)]);
 
 % joint torque tau = G' * F
 tau = G' * F;
 
 % joint torque tau = J' * Q
-% Get Q for each joint
+% Get Q for each joint, using left division \, so Q = J'\tau
 for i = 1:length(J)
     Q(:,:,i) = J{i}' \ tau(1:size(J{i},2),:);
 end
 
+%% =================  Compliance calculation =================
+
+k = k_uniform;
+
+% Create Muscle compliance matrix needs to be in a square diagonal matrix.
+K = eye(size(k,1)) .* repmat(k, [1 length(k)]);
+
+Kq = G' * K * G;
+
+for i = 1:length(J)
+    C(:,:,i) = J{i} * inv( Kq(1:size(J{i},2),1:size(J{i},2)) ) * J{i}';
+end
+
 % ================= Plotting =================
-drawMOFP(X,Q);
+drawMOFP(X,Q,C);
