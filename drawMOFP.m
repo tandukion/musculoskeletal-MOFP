@@ -16,6 +16,7 @@ function drawMOFP(X,Q)
 
 
     % ====== Main figure window settings ======
+    set(gcf, 'Position', [2000, 100, 1400, 700]);  % set position and size of the figure window
 
     % ====== Subplot settings ======
     % Subplot axis parameter
@@ -44,16 +45,26 @@ function drawMOFP(X,Q)
     % --- Draw output force ---
     % Create settings for the output force on polar axis
     tick_space = 10; % tick space for polar axis
-    scale = 0.01;
+    axis_scale = 0.1 % axis scale to be fit into the robot link plot
+    axis_scale = axis_scale / tick_space;
+
+    % Create auto scaling for force values
+    for i = 1:size(Q_toe,1)
+        for j = 1:size(Q_toe,2)
+            power(i,j) = ceil(log10(abs(Q_toe(i,j)))-1);
+        end
+    end
+    value_power = max(max(power));  % The max power for the current values
+    value_scale = axis_scale * 10^(-max(max(value_power)));  % The value scale on the force plot
 
     % Draw polar scale (only need to draw one at toe)
-    drawPolarAxis(ax_force, position=toe_pos, scale=scale, tick_space=tick_space);
+    drawPolarAxis(ax_force, position=toe_pos, value_power=value_power, axis_scale=axis_scale, tick_space=tick_space);
 
     % Draw individual output force vectors on ankle
-    drawVector(ax_force, position=ankle_pos, F=Q_ankle, scale=scale);
+    drawVector(ax_force, position=ankle_pos, F=Q_ankle, scale=value_scale);
 
     % Draw individual output force vectors on toe
-    drawVector(ax_force, position=toe_pos, F=Q_toe, scale=scale);
+    drawVector(ax_force, position=toe_pos, F=Q_toe, scale=value_scale);
 
 
     % ====== Plot analysis output ======
@@ -64,7 +75,7 @@ function drawMOFP(X,Q)
     V_toe = outputForceDistribution(V=Q_toe);
 
     % Draw output force distribution
-    drawOutputForceDistribution(ax_force, position=ankle_pos, V=V_ankle, scale=scale);
-    drawOutputForceDistribution(ax_force, position=toe_pos, V=V_toe, scale=scale);
+    drawOutputForceDistribution(ax_force, position=ankle_pos, V=V_ankle, scale=value_scale);
+    drawOutputForceDistribution(ax_force, position=toe_pos, V=V_toe, scale=value_scale);
 
 end
