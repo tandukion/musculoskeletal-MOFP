@@ -1,4 +1,4 @@
-function drawMOFP(X,Q)
+function drawMOFP(X,Q,C)
     % This function 
 
 
@@ -14,6 +14,8 @@ function drawMOFP(X,Q)
     Q_ankle = Q(:,:,end-1);
     Q_toe = Q(:,:,end);
 
+    C_ankle = C(:,:,end-1)
+    C_toe = C(:,:,end)
 
     % ====== Main figure window settings ======
     set(gcf, 'Position', [2000, 100, 1400, 700]);  % set position and size of the figure window
@@ -45,7 +47,7 @@ function drawMOFP(X,Q)
     % --- Draw output force ---
     % Create settings for the output force on polar axis
     tick_space = 10; % tick space for polar axis
-    axis_scale = 0.1 % axis scale to be fit into the robot link plot
+    axis_scale = 0.1; % axis scale to be fit into the robot link plot
     axis_scale = axis_scale / tick_space;
 
     % Create auto scaling for force values
@@ -66,6 +68,13 @@ function drawMOFP(X,Q)
     % Draw individual output force vectors on toe
     drawVector(ax_force, position=toe_pos, F=Q_toe, scale=value_scale);
 
+    % --- Draw compliance eclipse ---
+    % Create settings for the output force on polar axis
+    com_scale = 10;
+
+    % Draw compliance eclipse
+    drawComplianceEllipse(ax_compliance, position=ankle_pos, C=C_ankle, scale=com_scale)
+    drawComplianceEllipse(ax_compliance, position=toe_pos, C=C_toe, scale=com_scale)
 
     % ====== Plot analysis output ======
     % Compute the output force distribution
