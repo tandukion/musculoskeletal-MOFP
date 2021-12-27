@@ -90,11 +90,12 @@ G_base = [
      0   0   0   0   0   0  -1   1  -1   1; % ankle joint
     ]';
 
-%% =================  MOMENT ARM =================
-% Define the value of moment arms of the joint.
+%% ------------------  MOMENT ARM ------------------
+% Define the value of moment arms of the muscles on each joint.
 
 %  [GMAX,   IL,     HAM,    RF,     BF,     VAS,    GAS,    NONE,   SOL,    TA   ]
 
+% ------ PRE-DEFINED values from references ------
 % --- 2010ver Athlete Robot [1] ---
 % Simplified moment arm matrices
 % #1 Uniform
@@ -121,28 +122,36 @@ MA_robot = [
     0.000   0.000   0.020   0.024   0.000   0.024   0.020   0.000   0.000   0.000;
     0.000   0.000   0.000   0.000   0.000   0.000   0.050   0.000   0.050   0.035;
     ]';
-
-% Define the moment arm values here
-G = G_base .* MA_uniform;
+% ---------------------------------------------
 
 %% ------------------  MUSCLE OUTPUT FORCE (TENSION FORCE) -----------------------------
 
+% ------ PRE-DEFINED values from references ------
 % --- 2010ver Athlete Robot [1] ---
 % Simplified force vectors
 %  [GMAX, IL,  HAM, RF, BF,  VAS, GAS, NON, SOL, TA] (N)
 f_uniform = [
     1     1    1    1   1    1    1    1    1    1]'; % muscles set upper boundary
 
-% Output force matrix needs to be in a square diagonal matrix.
-F = eye(size(f_uniform,1)) .* repmat(f_uniform, [1 10]);
+f_robot_2010 = [
+    3200  1600 1600 800 0    2400 1600 0    0    200]';
+
+% ---------------------------------------------
 
 %% =================  MOFP calculation =================
+
+% --> Define the moment arms and forces for the muscle here
+% --- Using data from references ---
+% Moment arms
+G = G_base .* MA_uniform;
+% Forces
+f = f_uniform;
 
 % Compute Forward Kinematics for end-effector position X and Jacobian Matix J
 [X J] = forwardKinematics(L, theta);
 
-% Calculate Maximum Output Force Profile
-% calculateMOFP(L, theta);
+% Output force matrix needs to be in a square diagonal matrix.
+F = eye(size(f_uniform,1)) .* repmat(f, [1 10]);
 
 % joint torque tau = G' * F
 tau = G' * F;
