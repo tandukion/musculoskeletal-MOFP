@@ -69,6 +69,9 @@ function updatePlot (obj)
   
     % Action based on user input
     switch (gcbo)
+        case {h.save_image}
+            fn =  uiputfile ("*.png");
+            print (fn);
         % Link length input
         case {h.link1_value}
             l_str = get (h.link1_value, "string");
@@ -308,6 +311,15 @@ h.k_table = uitable (   "Data", f,
                         "CellEditCallback", @updatePlot,
                         "ColumnWidth", repmat({k_table_col}, 1, size(f,2)),
                         "Position", k_table_pos
+);
+
+% save figure
+save_img_posX = setting_posX;
+save_img_posY = setting_posY-ax_pos(4);
+h.save_image = uicontrol ("style", "pushbutton",
+                        "string", "Save plot",
+                        "callback", @updatePlot,
+                        "position", [save_img_posX save_img_posY 200 50]
 );
 
 set (gcf, "color", get(0, "defaultuicontrolbackgroundcolor"))
