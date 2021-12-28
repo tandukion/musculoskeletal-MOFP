@@ -404,6 +404,7 @@ h.save_image = uicontrol ("style", "pushbutton",
 set (gcf, "color", get(0, "defaultuicontrolbackgroundcolor"))
 guidata (gcf, h)
 
+% ============================ Initialization ============================
 % Show the initial MOFP
 [X J Q] = calculateMOFP(L,theta,G,f);
 drawMOFP(h.ax,X,Q);
