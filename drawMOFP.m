@@ -44,12 +44,15 @@ function drawMOFP(ax,X,Q)
 
     % Draw polar scale (only need to draw one at toe)
     drawPolarAxis(ax, position=toe_pos, value_power=value_power, axis_scale=axis_scale, tick_space=tick_space);
+    hold on;
 
     % Draw individual output force vectors on ankle
     drawVector(ax, position=ankle_pos, F=Q_ankle, scale=value_scale);
+    hold on;
 
     % Draw individual output force vectors on toe
     drawVector(ax, position=toe_pos, F=Q_toe, scale=value_scale);
+    hold on;
 
     % ====== Plot analysis output ======
     % Compute the output force distribution
@@ -60,6 +63,8 @@ function drawMOFP(ax,X,Q)
 
     % Draw output force distribution
     drawOutputForceDistribution(ax, position=ankle_pos, V=V_ankle, scale=value_scale);
+    hold on;
     drawOutputForceDistribution(ax, position=toe_pos, V=V_toe, scale=value_scale);
+    hold on;
 
 end
