@@ -1,3 +1,14 @@
+%
+%   Reference data for MOFP
+%
+%   References:
+%   [1] @inproceedings{niiyama2010athlete,
+%         title={Athlete robot with applied human muscle activation patterns for bipedal running},
+%         author={Niiyama, Ryuma and Nishikawa, Satoshi and Kuniyoshi, Yasuo},
+%         booktitle={2010 10th IEEE-RAS International Conference on Humanoid Robots},
+%         pages={498--503},
+%         year={2010},
+%         organization={IEEE}
 
 %% ------------------ LINK PARAMETERS ------------------
 % Make all variables global
