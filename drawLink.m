@@ -17,10 +17,12 @@ function drawLink(ax, ee_pos, line_width=2, line_color=[0 0 0])
         A = [joint_pos(1,i) joint_pos(1,i+1)];
         B = [joint_pos(2,i) joint_pos(2,i+1)];
         line(ax, A,B,'Color',line_color,'LineWidth',line_width);
+        hold on;
     end
 
     % Draw extra line to show which joint is the first joint
     line(ax, [-0.05 0.05] + joint_pos(1,1), [0 0] + joint_pos(2,1) ,'Color',line_color,'LineWidth',line_width);
+    hold on;
 
     % --- Draw joints ---
     % Create circle(s) for the joint.
@@ -37,6 +39,7 @@ function drawLink(ax, ee_pos, line_width=2, line_color=[0 0 0])
     for i = 1:length(joint_pos)-1
         for j = 1:length(r)
             plot(ax, X(:,:,j) + joint_pos(1,i), Y(:,:,j) + joint_pos(2,i), 'Color', circle_color, 'LineWidth',line_width/2);
+            hold on;
         end
     end
 end
