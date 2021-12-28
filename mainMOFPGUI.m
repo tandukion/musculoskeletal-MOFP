@@ -118,15 +118,15 @@ function updatePlot (obj)
         % G
         case {h.MA_table}
             G = get (h.MA_table, "Data");
-            recalc = true;
+            % recalc = true; Do not update plot on every cell update
         % f
         case {h.f_table}
             f = get (h.f_table, "Data");
-            recalc = true;
+            % recalc = true; Do not update plot on every cell update
         % k
         case {h.k_table}
             k = get (h.k_table, "Data");
-            % recalc = true;
+            % recalc = true; Do not update plot on every cell update
 
         % pre-defined data button
         case {h.load_MA_uniform_button}
@@ -137,7 +137,7 @@ function updatePlot (obj)
             % update GUI data
             set(h.MA_table, "Data", G);
             set(h.f_table, "Data", f);
-            recalc = true;
+            % recalc = true; Do not update plot on every cell update
         case {h.load_MA_anthropomorphic_button}
             global G_base MA_anthropomorphic f_uniform;
             % load data
@@ -146,7 +146,7 @@ function updatePlot (obj)
             % update GUI data
             set(h.MA_table, "Data", G);
             set(h.f_table, "Data", f);
-            recalc = true;
+            % recalc = true; Do not update plot on every cell update
         case {h.load_MA_monoarticular_button}
             global G_base MA_symmetric_mono_articular f_uniform;
             % load data
@@ -155,7 +155,7 @@ function updatePlot (obj)
             % update GUI data
             set(h.MA_table, "Data", G);
             set(h.f_table, "Data", f);
-            recalc = true;
+            % recalc = true; Do not update plot on every cell update
         case {h.load_MA_athlete_robot_button}
             global G_base MA_athlete_robot f_robot_2010;
             % load data
@@ -164,6 +164,9 @@ function updatePlot (obj)
             % update GUI data
             set(h.MA_table, "Data", G);
             set(h.f_table, "Data", f);
+            % recalc = true; Do not update plot on every cell update
+        
+        case {h.update_plot_button}
             recalc = true;
     end
 
@@ -377,6 +380,16 @@ h.load_MA_athlete_robot_button = uicontrol ("style", "pushbutton",
                                             "string", "Load Athlete Robot\ndata",
                                             "callback", @updatePlot,
                                             "position", [button_posX button_posY 200 button_height]
+);
+
+% Update plot button
+button_height = 50;
+button_posX = MA_table_posX;
+button_posY = MA_table_posY-button_height-25;
+h.update_plot_button = uicontrol (  "style", "pushbutton",
+                                    "string", "Update plot",
+                                    "callback", @updatePlot,
+                                    "position", [button_posX button_posY 200 button_height]
 );
 
 % save figure
