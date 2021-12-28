@@ -1,5 +1,10 @@
-function drawMOFP(X,Q,C)
-    % This function 
+function drawMOFP(ax,X,Q)
+    % This function draws the Maximum Output Force Profile on the given end-effector position and end-effector forces
+    %
+    % Args:
+    %   - ax (Axes): Target axes to plot
+    %   - X (N Cells of Arrays 3x1): Matrix of end-effector's 2D position on N joints. Third row is ones.
+    %   - Q (N Cells of Arrays 3xM): Matrix of M vectors on N joints. Third row is zeros.
 
 
     % Create the end-effector position matrix in (2xN)
@@ -14,35 +19,13 @@ function drawMOFP(X,Q,C)
     Q_ankle = Q(:,:,end-1);
     Q_toe = Q(:,:,end);
 
-    C_ankle = C(:,:,end-1)
-    C_toe = C(:,:,end)
-
-    % ====== Main figure window settings ======
-    set(gcf, 'Position', [2000, 100, 1400, 700]);  % set position and size of the figure window
-
-    % ====== Subplot settings ======
-    % Subplot axis parameter
-    axis_par = [-0.5 0.5 -1.0 0.1];
-
-    % #1 Output force subplot
-    ax_force = subplot(1,2,1);
-    title('Maximum Output Force Profile');
-    axis equal;
-    axis(axis_par);
-    hold on;
-
-    % #2 Compliance subplot
-    ax_compliance = subplot(1,2,2);
-    title('Compliance Profile');
-    axis equal;
-    axis(axis_par);
-    hold on;
+    % ====== Plot settings ======
+    set (ax, 'title', 'Maximum Output Force Profile');
 
     % ====== Plot input ======
     % --- Draw robot link for all plots ---
-    % Draw for both force analysis and compliance analysis
-    drawLink(ax_force, ee_pos);
-    drawLink(ax_compliance, ee_pos);
+    drawLink(ax, ee_pos);
+    hold on;
 
     % --- Draw output force ---
     % Create settings for the output force on polar axis
@@ -60,21 +43,13 @@ function drawMOFP(X,Q,C)
     value_scale = axis_scale * 10^(-max(max(value_power)));  % The value scale on the force plot
 
     % Draw polar scale (only need to draw one at toe)
-    drawPolarAxis(ax_force, position=toe_pos, value_power=value_power, axis_scale=axis_scale, tick_space=tick_space);
+    drawPolarAxis(ax, position=toe_pos, value_power=value_power, axis_scale=axis_scale, tick_space=tick_space);
 
     % Draw individual output force vectors on ankle
-    drawVector(ax_force, position=ankle_pos, F=Q_ankle, scale=value_scale);
+    drawVector(ax, position=ankle_pos, F=Q_ankle, scale=value_scale);
 
     % Draw individual output force vectors on toe
-    drawVector(ax_force, position=toe_pos, F=Q_toe, scale=value_scale);
-
-    % --- Draw compliance eclipse ---
-    % Create settings for the output force on polar axis
-    com_scale = 10;
-
-    % Draw compliance eclipse
-    drawComplianceEllipse(ax_compliance, position=ankle_pos, C=C_ankle, scale=com_scale)
-    drawComplianceEllipse(ax_compliance, position=toe_pos, C=C_toe, scale=com_scale)
+    drawVector(ax, position=toe_pos, F=Q_toe, scale=value_scale);
 
     % ====== Plot analysis output ======
     % Compute the output force distribution
@@ -84,7 +59,7 @@ function drawMOFP(X,Q,C)
     V_toe = outputForceDistribution(V=Q_toe);
 
     % Draw output force distribution
-    drawOutputForceDistribution(ax_force, position=ankle_pos, V=V_ankle, scale=value_scale);
-    drawOutputForceDistribution(ax_force, position=toe_pos, V=V_toe, scale=value_scale);
+    drawOutputForceDistribution(ax, position=ankle_pos, V=V_ankle, scale=value_scale);
+    drawOutputForceDistribution(ax, position=toe_pos, V=V_toe, scale=value_scale);
 
 end

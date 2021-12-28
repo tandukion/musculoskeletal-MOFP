@@ -182,4 +182,14 @@ for i = 1:length(J)
 end
 
 % ================= Plotting =================
-drawMOFP(X,Q,C);
+% Create subplot for MOFP and compliance
+ax_force = subplot(1,2,1);
+hold on;
+ax_compliance = subplot(1,2,2);
+hold on;
+
+drawMOFP(ax_force,X,Q);
+drawCompliance(ax_compliance,X,C);
+
+set(gcf, 'Position', [100, 100, 1400, 700]);  % set position and size of the figure window
+axis equal;
