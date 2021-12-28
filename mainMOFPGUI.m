@@ -127,6 +127,44 @@ function updatePlot (obj)
         case {h.k_table}
             k = get (h.k_table, "Data");
             % recalc = true;
+
+        % pre-defined data button
+        case {h.load_MA_uniform_button}
+            global G_base MA_uniform f_uniform;
+            % load data
+            G = G_base .* MA_uniform;
+            f = f_uniform;
+            % update GUI data
+            set(h.MA_table, "Data", G);
+            set(h.f_table, "Data", f);
+            recalc = true;
+        case {h.load_MA_anthropomorphic_button}
+            global G_base MA_anthropomorphic f_uniform;
+            % load data
+            G = G_base .* MA_anthropomorphic;
+            f = f_uniform;
+            % update GUI data
+            set(h.MA_table, "Data", G);
+            set(h.f_table, "Data", f);
+            recalc = true;
+        case {h.load_MA_monoarticular_button}
+            global G_base MA_symmetric_mono_articular f_uniform;
+            % load data
+            G = G_base .* MA_symmetric_mono_articular;
+            f = f_uniform;
+            % update GUI data
+            set(h.MA_table, "Data", G);
+            set(h.f_table, "Data", f);
+            recalc = true;
+        case {h.load_MA_athlete_robot_button}
+            global G_base MA_athlete_robot f_robot_2010;
+            % load data
+            G = G_base .* MA_athlete_robot;
+            f = f_robot_2010;
+            % update GUI data
+            set(h.MA_table, "Data", G);
+            set(h.f_table, "Data", f);
+            recalc = true;
     end
 
     if (recalc)
@@ -311,6 +349,34 @@ h.k_table = uitable (   "Data", f,
                         "CellEditCallback", @updatePlot,
                         "ColumnWidth", repmat({k_table_col}, 1, size(f,2)),
                         "Position", k_table_pos
+);
+
+% Load reference data button
+button_height = 50;
+button_posX = MA_table_posX + 400;
+button_posY = MA_table_posY+MA_table_h-button_height;
+h.load_MA_uniform_button = uicontrol (  "style", "pushbutton",
+                                        "string", "Load uniform moment arm",
+                                        "callback", @updatePlot,
+                                        "position", [button_posX button_posY 200 button_height]
+);
+button_posY = button_posY-60;
+h.load_MA_anthropomorphic_button = uicontrol (  "style", "pushbutton",
+                                                "string", "Load anthropomorphic\nmoment arm",
+                                                "callback", @updatePlot,
+                                                "position", [button_posX button_posY 200 button_height]
+);
+button_posY = button_posY-60;
+h.load_MA_monoarticular_button = uicontrol ("style", "pushbutton",
+                                            "string", "Load monoarticular\nmoment arm",
+                                            "callback", @updatePlot,
+                                            "position", [button_posX button_posY 200 button_height]
+);
+button_posY = button_posY-60;
+h.load_MA_athlete_robot_button = uicontrol ("style", "pushbutton",
+                                            "string", "Load Athlete Robot\ndata",
+                                            "callback", @updatePlot,
+                                            "position", [button_posX button_posY 200 button_height]
 );
 
 % save figure

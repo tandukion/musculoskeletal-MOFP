@@ -1,6 +1,8 @@
 
 %% ------------------ LINK PARAMETERS ------------------
-% Define the robot link lengths here
+% Make all variables global
+global L_athlete_robot MA_uniform MA_anthropomorphic MA_symmetric_mono_articular MA_athlete_robot;
+global f_uniform f_robot_2010;
 
 % --- 2010ver Athlete Robot [1] ---
 L_athlete_robot = [0.300, 0.300, 0.150]; % [L_thigh L_shank L_foot]
@@ -30,7 +32,7 @@ MA_symmetric_mono_articular = [
     0.000   0.000   0.000   0.000   0.000   0.000   0.000   0.000   1.000   1.000;
     ]';
 % #4 athlete robot 
-MA_robot = [
+MA_athlete_robot = [
     0.050   0.000   0.060   0.024   0.000   0.000   0.000   0.000   0.000   0.000;
     0.000   0.000   0.020   0.024   0.000   0.024   0.020   0.000   0.000   0.000;
     0.000   0.000   0.000   0.000   0.000   0.000   0.050   0.000   0.050   0.035;

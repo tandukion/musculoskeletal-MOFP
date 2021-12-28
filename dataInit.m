@@ -1,5 +1,6 @@
 %% ================= MUSCLE PARAMETERS ========================
-% Define the muscles working on the robot
+% Make all variables global
+global mus_name G_base k_uniform
 
 % Define the label for each muscle here
 mus_name = [
