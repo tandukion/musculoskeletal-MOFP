@@ -1,4 +1,4 @@
-function F = calculateMcKibbenForceWithADMA (mus_param,ADMA_par,theta,P)
+function F = calculateMcKibbenForceWithADMA (mus_param,ADMA_par,theta,P, flexor=[1 1 1])
     % This function calculates the muscle force with ADMA structure.
     %
     % Args:
@@ -15,9 +15,17 @@ function F = calculateMcKibbenForceWithADMA (mus_param,ADMA_par,theta,P)
     %         - r: radius of the guide circle
     %     - theta (Array Nx1): current joint angles
     %     - P: air pressure (Pa)
+    %     - flexor (Array 1xN): flag to indicate the current muscle is a flexor muscle for the joint i
     % Returns:
     %     - F: Output force (N)
 
+    % Since the ADMA parameter doesn't handle sign for an antagonist muscle,
+    % handle the antagonist muscle
+    for i = 1:length(theta)
+        if ~flexor(i)
+            theta(i) = -theta(i);
+        end
+    end
 
     % Extract the muscle parameter
     [D0 theta0 L0 mus_num] = deal(num2cell(mus_param){:});
@@ -50,7 +58,9 @@ function F = calculateMcKibbenForceWithADMA (mus_param,ADMA_par,theta,P)
     end
     L = L0 + sum(X);
 
+    Ldiff = Lmax - L;
+
     % --- Calculate muscle force
-    F = calculateMcKibbenForce(D0,theta0,Lmax,L,P);
+    F = calculateMcKibbenForce(D0,theta0,L0,L0-Ldiff,P);
     F = F * mus_num;
 end

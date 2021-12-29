@@ -17,20 +17,31 @@ dataAthleteRobot2014
 % create global variables
 global L theta G f k mus_par mus_p ADMA_par;
 
+% Robot link and joint angles
 L = L_athlete_robot;
 theta = [-pi/3 -pi/2 2*pi/3]; % [hip knee ankle]
 
+% Jacobian matrix for moment-arm and force relation
 G = G_base .* MA_uniform;
-f = f_uniform;
 
+% Muscle force and stiffness vectors
+f = f_uniform;
 k = k_uniform;
 
+% Muscle parameters
 mus_par = mus_par_2014;
-
+% ADMA parameters
 ADMA_par = ADMA_par_2014;
+
+% Joint angle offset
+% NOTE: the joint angles (theta) start from (+) X-axis
+%       HOWEVER, the ADMA from 2014 ref, need hip joint start from (-) Yaxis
+global theta_init;
+theta_init = [-pi/2 0 0];
 
 % Max pressure
 p_max = 0.8*10^6;
+% Muscle pressures
 mus_p = p_max * ones(length(mus_name),1);
 
 % To decrease calculation time, create function holders
@@ -100,6 +111,12 @@ function C = calculateCompliance (J, G, k)
 end
 
 function MA = calculateMomentArmUsingADMA (ADMA_par, theta)
+    % Load needed global variables
+    global G_base theta_init;
+
+    % Calculate the joint angles
+    theta = theta - theta_init;
+
     % only use [a b c d r] part of ADMA
     ADMA_par = ADMA_par(1:5,:,:);
 
@@ -109,7 +126,10 @@ function MA = calculateMomentArmUsingADMA (ADMA_par, theta)
         for j = 1:size(ADMA_par,2)
             % Calculate only if ADMA parameter is defined
             if ~isequal(ADMA_par(:,j,i), zeros(size(ADMA_par(:,j,i))))
-                MA(i,j) = calculateADMA(ADMA_par(:,j,i),theta(j));
+                % Check agonist muscle
+                flexor = ~isequal(G_base(i,j), 1);
+                % Calculate moment arm
+                MA(i,j) = calculateADMA(ADMA_par(:,j,i),theta(j),flexor);
             else
                 MA(i,j) = 0;
             end
@@ -118,11 +138,22 @@ function MA = calculateMomentArmUsingADMA (ADMA_par, theta)
 end
 
 function F = calculateMuscleForcesWithADMA (mus_par, ADMA_par, theta, P)
+    % Load needed global variables
+    global G_base theta_init;
+
+    % Calculate the joint angles
+    theta = theta - theta_init;
+
     % Calculate force for each muscle
     for i = 1:size(ADMA_par,3)
         % Calculate if muscle exists
         if ~((mus_par(i,4) == 0) || isequal(ADMA_par(:,:,i), zeros(size(ADMA_par(:,:,i))) ))
-            F(i) = calculateMcKibbenForceWithADMA(mus_par(i,:), ADMA_par(:,:,i), theta, P(i));
+            % Check agonist
+            for j = 1:length(theta)
+                flexor(j) = ~isequal(G_base(i,j), 1);
+            end
+            % Calculate force
+            F(i) = calculateMcKibbenForceWithADMA(mus_par(i,:), ADMA_par(:,:,i), theta, P(i), flexor);
         else
             F(i) = 0;
         end
@@ -255,7 +286,7 @@ function updatePlot (obj)
             set(h.f_table, "Data", f);
         case {h.load_f_with_ADMA_button}
             global ADMA_par;
-            f = calculateMuscleForcesWithADMA(mus_par, ADMA_par, theta, mus_p)
+            f = calculateMuscleForcesWithADMA(mus_par, ADMA_par, theta, mus_p);
             set(h.f_table, "Data", arrayfun(@(x) formatData(x,dec=1),f,'UniformOutput',false));
         
         case {h.update_plot_button}
@@ -589,5 +620,5 @@ guidata (gcf, h)
 
 % ============================ Initialization ============================
 % Show the initial MOFP
-[X J Q] = calculateMOFP(L,theta,G,f);
-drawMOFP(h.ax,X,Q);
+% [X J Q] = calculateMOFP(L,theta,G,f);
+% drawMOFP(h.ax,X,Q);
