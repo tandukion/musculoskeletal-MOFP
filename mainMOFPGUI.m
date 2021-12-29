@@ -554,5 +554,5 @@ guidata (gcf, h)
 
 % ============================ Initialization ============================
 % Show the initial MOFP
-% [X J Q] = calculateMOFP(L,theta,G,f);
-% drawMOFP(h.ax,X,Q);
+[X J Q] = calculateMOFP(L,theta,G,f);
+drawMOFP(h.ax,X,Q);
