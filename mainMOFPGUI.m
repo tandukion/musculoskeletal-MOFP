@@ -70,9 +70,14 @@ function [X J Q] = calculateMOFP (L, theta, G, f)
         [Xfunc Jfunc] = forwardKinematics(sym_link, sym_theta);
         function_defined = true;
 
-        % disable warning
+        % Disabling warning
+        % NOTE: uncomment this if you prefer to see the warning
         msg = 'passing floating-point values to sym is dangerous, see "help sym"';
         id = 'OctSymPy:sym:rationalapprox';
+        S = warning ('off', id);
+        disp(strcat('Deactivate warning: ',msg))
+        msg = 'matrix singular to machine precision';
+        id = 'Octave:singular-matrix';
         S = warning ('off', id);
         disp(strcat('Deactivate warning: ',msg))
     end
