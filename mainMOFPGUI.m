@@ -156,50 +156,38 @@ function updatePlot (obj)
             % recalc = true; Do not update plot on every cell update
 
         % pre-defined data button
+        % This will not update the plot
         case {h.load_MA_uniform_button}
-            global G_base MA_uniform f_uniform;
-            % load data
+            global G_base MA_uniform;
             G = G_base .* MA_uniform;
-            f = f_uniform;
-            % update GUI data
             set(h.MA_table, "Data", G);
-            set(h.f_table, "Data", f);
-            % recalc = true; Do not update plot on every cell update
         case {h.load_MA_anthropomorphic_button}
-            global G_base MA_anthropomorphic f_uniform;
-            % load data
+            global G_base MA_anthropomorphic;
             G = G_base .* MA_anthropomorphic;
-            f = f_uniform;
-            % update GUI data
             set(h.MA_table, "Data", arrayfun(@(x) formatData(x),G,'UniformOutput',false));
-            set(h.f_table, "Data", f);
-            % recalc = true; Do not update plot on every cell update
         case {h.load_MA_monoarticular_button}
-            global G_base MA_symmetric_mono_articular f_uniform;
-            % load data
+            global G_base MA_symmetric_mono_articular;
             G = G_base .* MA_symmetric_mono_articular;
-            f = f_uniform;
-            % update GUI data
             set(h.MA_table, "Data", arrayfun(@(x) formatData(x),G,'UniformOutput',false));
-            set(h.f_table, "Data", f);
-            % recalc = true; Do not update plot on every cell update
         case {h.load_MA_athlete_robot_button}
-            global G_base MA_athlete_robot f_robot_2010;
-            % load data
+            global G_base MA_athlete_robot;
             G = G_base .* MA_athlete_robot;
-            f = f_robot_2010;
-            % update GUI data
             set(h.MA_table, "Data", arrayfun(@(x) formatData(x),G,'UniformOutput',false));
-            set(h.f_table, "Data", f);
-            % recalc = true; Do not update plot on every cell update
-        
         case {h.load_ADMA_2014_button}
             format short g
             global G_base ADMA_par_2014;
             MA = calculateMomentArmUsingADMA (ADMA_par_2014, theta);
             G = G_base .* MA;
             set(h.MA_table, "Data", arrayfun(@(x) formatData(x),G,'UniformOutput',false));
-            % recalc = true; Do not update plot on every cell update
+
+        case {h.load_f_uniform_button}
+            global f_uniform;
+            f = f_uniform;
+            set(h.f_table, "Data", f);
+        case {h.load_f_athlete_robot_button}
+            global f_robot_2010;
+            f = f_robot_2010;
+            set(h.f_table, "Data", f);
         
         case {h.update_plot_button}
             recalc = true;
@@ -389,7 +377,7 @@ h.k_table = uitable (   "Data", f,
                         "Position", k_table_pos
 );
 
-% Load reference data button
+% Moment arm setting
 MA_setting_label_posX = setting_posX;
 MA_setting_label_posY = MA_table_posY - 50;
 h.MA_setting_label = uicontrol (   "style", "text",
@@ -422,7 +410,7 @@ h.load_MA_monoarticular_button = uicontrol ("style", "pushbutton",
 button_posX = MA_setting_label_posX;
 button_posY = MA_setting_label_posY-2*(10+button_height);
 h.load_MA_athlete_robot_button = uicontrol ("style", "pushbutton",
-                                            "string", "Load Athlete Robot\ndata",
+                                            "string", "Load Athlete Robot\nmoment arm data",
                                             "callback", @updatePlot,
                                             "position", [button_posX button_posY button_width button_height]
 );
@@ -431,6 +419,30 @@ h.load_ADMA_2014_button = uicontrol (   "style", "pushbutton",
                                         "string", "Load Angle-Dependent\nMoment Arm\n(Athlete 2014 data)",
                                         "callback", @updatePlot,
                                         "position", [button_posX button_posY button_width button_height]
+);
+
+% Force setting
+f_setting_label_posX = setting_posX;
+f_setting_label_posY = MA_setting_label_posY - 150;
+h.f_setting_label = uicontrol ( "style", "text",
+                                "string", "Force setting",
+                                "horizontalalignment", "left",
+                                "position", [f_setting_label_posX f_setting_label_posY 200 20]
+);
+button_width = 180;
+button_height = 50;
+button_posX = f_setting_label_posX;
+button_posY = f_setting_label_posY-(10+button_height);
+h.load_f_uniform_button = uicontrol (  "style", "pushbutton",
+                                        "string", "Load uniform force",
+                                        "callback", @updatePlot,
+                                        "position", [button_posX button_posY button_width button_height]
+);
+button_posX = button_posX+button_width+20;
+h.load_f_athlete_robot_button = uicontrol ( "style", "pushbutton",
+                                            "string", "Load Athlete Robot\nforce data",
+                                            "callback", @updatePlot,
+                                            "position", [button_posX button_posY button_width button_height]
 );
 
 % Update plot button
