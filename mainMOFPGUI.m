@@ -76,6 +76,15 @@ function MA = calculateMomentArmUsingADMA (ADMA_par, theta)
     end
 end
 
+function y = formatData(x)
+    % Format scientific notation to numeric float
+    if (x~=0)
+        y = sprintf('%.4f',x);
+    else
+        y=x;
+    end
+end
+
 function updatePlot (obj)
     % Get the global data
     global L theta G f k;
@@ -84,7 +93,7 @@ function updatePlot (obj)
     h = guidata (obj);
     replot = false;
     recalc = false;
-  
+
     % Action based on user input
     switch (gcbo)
         case {h.save_image}
@@ -162,7 +171,7 @@ function updatePlot (obj)
             G = G_base .* MA_anthropomorphic;
             f = f_uniform;
             % update GUI data
-            set(h.MA_table, "Data", G);
+            set(h.MA_table, "Data", arrayfun(@(x) formatData(x),G,'UniformOutput',false));
             set(h.f_table, "Data", f);
             % recalc = true; Do not update plot on every cell update
         case {h.load_MA_monoarticular_button}
@@ -171,7 +180,7 @@ function updatePlot (obj)
             G = G_base .* MA_symmetric_mono_articular;
             f = f_uniform;
             % update GUI data
-            set(h.MA_table, "Data", G);
+            set(h.MA_table, "Data", arrayfun(@(x) formatData(x),G,'UniformOutput',false));
             set(h.f_table, "Data", f);
             % recalc = true; Do not update plot on every cell update
         case {h.load_MA_athlete_robot_button}
@@ -180,15 +189,16 @@ function updatePlot (obj)
             G = G_base .* MA_athlete_robot;
             f = f_robot_2010;
             % update GUI data
-            set(h.MA_table, "Data", G);
+            set(h.MA_table, "Data", arrayfun(@(x) formatData(x),G,'UniformOutput',false));
             set(h.f_table, "Data", f);
             % recalc = true; Do not update plot on every cell update
         
         case {h.load_ADMA_2014_button}
+            format short g
             global G_base ADMA_par_2014;
             MA = calculateMomentArmUsingADMA (ADMA_par_2014, theta);
             G = G_base .* MA;
-            set(h.MA_table, "Data", G);
+            set(h.MA_table, "Data", arrayfun(@(x) formatData(x),G,'UniformOutput',false));
             % recalc = true; Do not update plot on every cell update
         
         case {h.update_plot_button}
