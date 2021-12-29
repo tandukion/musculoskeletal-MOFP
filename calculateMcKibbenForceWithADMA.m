@@ -36,29 +36,20 @@ function F = calculateMcKibbenForceWithADMA (mus_param,ADMA_par,theta,P, flexor=
     % Make ADMA parameter only consist of [a b c d r]
     ADMA_par = ADMA_par(1:5,:);
 
-    % --- Calculate the initial muscle length (Lmax) ---
+    % --- Calculate muscle length ---
     % Calculate the wire length on ADMA structure for all joints for Lmax
     for i = 1:size(ADMA_par,2)
         if ~isequal(ADMA_par(1:5,i), zeros(5,1))
-            X(i) = calculateWireLengthWithADMA(ADMA_par(1:5,i), theta_Lmax(i));
-        else
-            X(i) = 0;
-        end
-    end
-    Lmax = L0 + sum(X);
-
-    % --- Calculate the prresurized muscle length ---
-    % Calculate the wire length on ADMA structure for all joints
-    for i = 1:size(ADMA_par,2)
-        if ~isequal(ADMA_par(1:5,i), zeros(5,1))
+            % wire length at Lmax
+            Xmax(i) = calculateWireLengthWithADMA(ADMA_par(1:5,i), theta_Lmax(i));
+            % wire length at the current angle
             X(i) = calculateWireLengthWithADMA(ADMA_par(1:5,i), theta(i));
         else
+            Xmax(i) = 0;
             X(i) = 0;
         end
     end
-    L = L0 + sum(X);
-
-    Ldiff = Lmax - L;
+    Ldiff = sum(Xmax) - sum(X);
 
     % --- Calculate muscle force
     F = calculateMcKibbenForce(D0,theta0,L0,L0-Ldiff,P);
