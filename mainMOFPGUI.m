@@ -15,7 +15,7 @@ dataAthleteRobot2014
 
 % ============== Data initialization ==============
 % create global variables
-global L theta G f k mus_par;
+global L theta G f k mus_par mus_p;
 
 L = L_athlete_robot;
 theta = [-pi/3 -pi/2 2*pi/3]; % [hip knee ankle]
@@ -26,6 +26,10 @@ f = f_uniform;
 k = k_uniform;
 
 mus_par = mus_par_2014;
+
+% Max pressure
+p_max = 0.8*10^6;
+mus_p = p_max * ones(length(mus_name),1);
 
 % To decrease calculation time, create function holders
 global function_defined sym_link sym_theta Xfunc Jfunc;
@@ -116,7 +120,7 @@ end
 
 function updatePlot (obj)
     % Get the global data
-    global L theta G f k;
+    global L theta G f k mus_par mus_p;
 
     % Get the GUI object data
     h = guidata (obj);
@@ -183,6 +187,13 @@ function updatePlot (obj)
         case {h.k_table}
             k = get (h.k_table, "Data");
             % recalc = true; Do not update plot on every cell update
+        % muscle parameter
+        case {h.mus_table}
+            mus_par = get (h.mus_table, "Data");
+        % p
+        case {h.p_table}
+            p_mpa = get (h.p_table, "Data");    % uitable data is in MPa.
+            mus_p = arrayfun(@(x) x*10^6, p_mpa)
 
         % pre-defined data button
         % This will not update the plot
@@ -429,6 +440,26 @@ h.mus_table = uitable (  "Data", mus_par,
                         "CellEditCallback", @updatePlot,
                         "ColumnWidth", repmat({table_col}, 1, size(mus_par,2)),
                         "Position", mus_table_pos
+);
+
+% Pressure table
+table_col = 100;
+p_table_posX = mus_table_pos(1) + mus_table_pos(3);
+p_table_posY = setting_posY-400;
+p_table_h = 235;
+p_table_pos = [p_table_posX p_table_posY table_col p_table_h];
+h.p_table_label = uicontrol ( "style", "text",
+                                "string", "Pressure (MPa)",
+                                "horizontalalignment", "center",
+                                "position", [p_table_pos(1) p_table_pos(2)+p_table_pos(4) p_table_pos(3) 20]
+);
+h.p_table = uitable (  "Data", arrayfun(@(x) x/10^6,mus_p),
+                        "ColumnEditable",true,
+                        "ColumnName", {"P"},
+                        "RowName", "",
+                        "CellEditCallback", @updatePlot,
+                        "ColumnWidth", repmat({table_col}, 1, size(mus_p,2)),
+                        "Position", p_table_pos
 );
 
 % Moment arm setting
