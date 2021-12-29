@@ -1,4 +1,4 @@
-function drawPolarAxis(ax, position, value_power=1, axis_scale=1, tick_space=1, line_width=0.5, line_color=[0.1 0.1 0.1])
+function drawPolarAxis(ax, position, value_scale=1, axis_scale=1, tick_space=1, line_width=0.5, line_color=[0.1 0.1 0.1])
     % This function draws robot links and joints based on the given end-effector position
     % The first joint will be drawn on (0,0) position.
     %
@@ -13,6 +13,8 @@ function drawPolarAxis(ax, position, value_power=1, axis_scale=1, tick_space=1, 
     % Define the radius for the circles
     r = [tick_space 2*tick_space 3*tick_space]; % [N]
 
+    tick_value = axis_scale / value_scale;
+
     % Draw the circles
     angle = 0.0:pi/16:2*pi;
     for i = 1:length(r)
@@ -22,11 +24,7 @@ function drawPolarAxis(ax, position, value_power=1, axis_scale=1, tick_space=1, 
         plot(ax, X(:,:,i) + position(1), Y(:,:,i) + position(2), '--', 'Color', line_color, 'LineWidth',line_width)
 
         % Display scale on plot
-        if (abs(value_power) > 2)
-            scale_label = strcat(sprintf('%d', i*tick_space), ' e', sprintf('%d',value_power));
-        else
-            scale_label = sprintf('%d', i * tick_space * 10^value_power);
-        end
+        scale_label = sprintf('%.1f', i * tick_value);
         if (i==length(r))
             scale_label = strcat(scale_label, ' N');
         end
