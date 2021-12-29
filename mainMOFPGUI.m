@@ -302,9 +302,9 @@ function updatePlot (obj)
 end
 
 % ============================ GUI settings ============================
-figure(1, "position",[200,400,1500,900]);
+figure(1, "position",[200,400,1600,900]);
 
-ax_pos = [50 50 700 800];
+ax_pos = [50 50 800 800];
 h.ax = axes ("units", "pixels", "position", ax_pos);
 
 setting_posX = ax_pos(1)+ax_pos(3) + 20;
@@ -620,5 +620,5 @@ guidata (gcf, h)
 
 % ============================ Initialization ============================
 % Show the initial MOFP
-% [X J Q] = calculateMOFP(L,theta,G,f);
-% drawMOFP(h.ax,X,Q);
+[X J Q] = calculateMOFP(L,theta,G,f);
+drawMOFP(h.ax,X,Q);

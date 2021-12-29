@@ -22,6 +22,26 @@ function drawMOFP(ax,X,Q)
     % ====== Plot settings ======
     set (ax, 'title', 'Maximum Output Force Profile');
 
+    % Set axis to be square with 1.0 length
+    min_YLim = toe_pos(2,1) - 0.3;
+    if min_YLim > -0.6
+        min_YLim = -0.6;
+    end
+    YLim = [min_YLim min_YLim+1.0];
+    set (ax, 'YLim', YLim);
+
+    if (toe_pos(1,1) >= 0)
+        max_XLim = toe_pos(1,1) + 0.3;
+        if max_XLim < 0.5
+            max_XLim = 0.5;
+        end
+        XLim = [max_XLim-1.0  max_XLim];
+    else
+        min_XLim = toe_pos(1,1) - 0.3;
+        XLim = [min_XLim  min_XLim+1.0];
+    end
+    set (ax, 'XLim', XLim);
+
     % ====== Plot input ======
     % --- Draw robot link for all plots ---
     drawLink(ax, ee_pos);
