@@ -36,6 +36,6 @@ There are two ways to run the script:
 “Design principle based on maximum output force profile for a musculoskeletal robot”.
 Industrial Robot: An International Journal, 2010.
 
-[4] K. Ito, T. Tsuji, and M. Nagamachi.
-"Motor impedance and inverse kinematics in musculoskeletal systems"
-Proceedings of the Annual International Conference of the IEEE Engineering in Medicine and Biology Society, pp. 635-636, 1988.
+[2] S. Nishikawa, K. Tanaka, K. Shida, T. Fukushima, R. Niiyama, Y. Kuniyoshi,
+“A musculoskeletal bipedal robot designed with angle-dependent moment arm for dynamic motion from multiple states”.
+Advanced Robotics, vol. 28, no. 7, pp. 487-496, 2014.
