@@ -94,4 +94,4 @@ ADMA_par_2014(:,:,6) = ADMA_par_VAS;
 ADMA_par_2014(:,:,7) = ADMA_par_GAS;
 ADMA_par_2014(:,:,8) = ADMA_par_NONE;
 ADMA_par_2014(:,:,9) = ADMA_par_SOL;
-ADMA_par_2014(:,:,10) = ADMA_par_SOL;
+ADMA_par_2014(:,:,10) = ADMA_par_TA;

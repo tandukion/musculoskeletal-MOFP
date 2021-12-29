@@ -1,4 +1,4 @@
-function R = calculateADMA (ADMA_par,theta)
+function R = calculateADMA (ADMA_par,theta, flexor=true)
     % This function calculates the Angle-Dependent Moment Arm from the given ADMA parameter and joint angle.
     %
     % For definition of the ADMA parameter and the moment arm calculation,
@@ -12,9 +12,16 @@ function R = calculateADMA (ADMA_par,theta)
     %         - d: position of insertion point from the center of rotation, perpendicular to link i+1
     %         - r: radius of the guide circle
     %     - theta: joint angle
+    %     - agonist (bool): flag to indicate the current muscle is a flexor muscle
     %
     % Return:
     %     - R: moment arm
+    
+    % Since the ADMA parameter doesn't handle sign for an antagonist muscle,
+    % handle the antagonist muscle
+    if ~flexor
+        theta = -theta;
+    end
 
     [a b c d r] = deal(num2cell(ADMA_par){:});
 
