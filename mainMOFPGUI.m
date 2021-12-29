@@ -18,22 +18,48 @@ dataAthleteRobot2014
 global L theta G f k;
 
 L = L_athlete_robot;
-theta = [-pi/3 -pi/2 2*pi/3]'; % [hip knee ankle]
+theta = [-pi/3 -pi/2 2*pi/3]; % [hip knee ankle]
 
 G = G_base .* MA_uniform;
 f = f_uniform;
 
 k = k_uniform;
 
-figure(1, "position",[400,400,1400,900]);
+% To decrease calculation time, create function holders
+global function_defined sym_link sym_theta Xfunc Jfunc;
 
-ax_pos = [50 50 700 800];
-h.ax = axes ("units", "pixels", "position", ax_pos);
+% symbolic variables for the functions
+function_defined = false;
+for i = 1:length(L)
+    a(i) = sym(strcat('L', num2str(i)));
+end
+sym_link = a;
+for i = 1:length(theta)
+    a(i) = sym(strcat('phi', num2str(i)));
+end
+sym_theta = a;
+
 
 % ============================ Functions ============================
 
 function [X J Q] = calculateMOFP (L, theta, G, f)
-    [X J] = forwardKinematics(L, theta);
+    global function_defined sym_link sym_theta Xfunc Jfunc;
+
+    % Create the X and J function for the first time
+    if ~function_defined
+        disp("Creating the end-effector position and the Jacobian function for the first time");
+        [Xfunc Jfunc] = forwardKinematics(sym_link, sym_theta);
+        function_defined = true;
+    end
+
+    % Substitute the symbolic to the numeric values
+    for i = 1:length(Xfunc)
+        % End-effector position
+        X{i} = double(subs(Xfunc{i},[sym_link sym_theta],[L theta]));
+
+        % Jacobian
+        J{i} = double(subs(Jfunc{i},[sym_link sym_theta],[L theta]));
+    end
 
     % Output force matrix needs to be in a square diagonal matrix.
     F = eye(size(f,1)) .* repmat(f, [1 length(f)]);
@@ -194,14 +220,19 @@ function updatePlot (obj)
     end
 
     if (recalc)
-        cla(h.ax);
         [X J Q] = calculateMOFP(L,theta,G,f);
+        cla(h.ax);
         drawMOFP(h.ax,X,Q);
     end
 
 end
 
 % ============================ GUI settings ============================
+figure(1, "position",[400,400,1400,900]);
+
+ax_pos = [50 50 700 800];
+h.ax = axes ("units", "pixels", "position", ax_pos);
+
 setting_posX = ax_pos(1)+ax_pos(3) + 20;
 setting_posY = ax_pos(2)+ax_pos(4) - 20;
 
@@ -469,5 +500,5 @@ guidata (gcf, h)
 
 % ============================ Initialization ============================
 % Show the initial MOFP
-% [X J Q] = calculateMOFP(L,theta,G,f);
-% drawMOFP(h.ax,X,Q);
+[X J Q] = calculateMOFP(L,theta,G,f);
+drawMOFP(h.ax,X,Q);
