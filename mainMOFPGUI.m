@@ -11,6 +11,7 @@ dataInit
 
 % Load reference data
 dataAthleteRobot
+dataAthleteRobot2014
 
 % ============== Data initialization ==============
 % create global variables
@@ -55,6 +56,23 @@ function C = calculateCompliance (J, G, k)
     
     for i = 1:length(J)
         C(:,:,i) = J{i} * inv( Kq(1:size(J{i},2),1:size(J{i},2)) ) * J{i}';
+    end
+end
+
+function MA = calculateMomentArmUsingADMA (ADMA_par, theta)
+    % ADMA_par
+    % theta
+    % Calculate ADMA for each muscle
+    for i = 1:size(ADMA_par,3)
+        % Calculate ADMA for each joint
+        for j = 1:size(ADMA_par,2)
+            % Calculate only if ADMA parameter is defined
+            if ~isequal(ADMA_par(:,j,i), zeros(size(ADMA_par(:,j,i))))
+                MA(i,j) = calculateADMA(ADMA_par(:,j,i),theta(j));
+            else
+                MA(i,j) = 0;
+            end
+        end
     end
 end
 
@@ -164,6 +182,13 @@ function updatePlot (obj)
             % update GUI data
             set(h.MA_table, "Data", G);
             set(h.f_table, "Data", f);
+            % recalc = true; Do not update plot on every cell update
+        
+        case {h.load_ADMA_2014_button}
+            global G_base ADMA_par_2014;
+            MA = calculateMomentArmUsingADMA (ADMA_par_2014, theta);
+            G = G_base .* MA;
+            set(h.MA_table, "Data", G);
             % recalc = true; Do not update plot on every cell update
         
         case {h.update_plot_button}
@@ -293,13 +318,13 @@ h.deg3_label = uicontrol (  "style", "text",
                             "position", joint3_pos + [350 -20 50 20]);
 
 % ------ Table based GUI ------
-table_col = 50;
+table_col = 60;
 
 % G (Moment arm) table
 MA_table_posX = setting_posX;
 MA_table_posY = setting_posY-400;
 MA_table_h = 235;
-MA_table_pos = [MA_table_posX MA_table_posY 200 MA_table_h];
+MA_table_pos = [MA_table_posX MA_table_posY 50+3*table_col MA_table_h];
 h.MA_table_label = uicontrol ( "style", "text",
                                 "string", "Moment arms (m)",
                                 "horizontalalignment", "center",
@@ -316,7 +341,7 @@ h.MA_table = uitable (  "Data", G,
 
 % Force table
 f_table_col = 60;
-f_table_posX = setting_posX + 210;
+f_table_posX = setting_posX + MA_table_pos(3);
 f_table_posY = MA_table_posY;
 f_table_h = MA_table_h;
 f_table_pos = [f_table_posX f_table_posY f_table_col f_table_h];
@@ -336,7 +361,7 @@ h.f_table = uitable (   "Data", f,
 
 % Stifness table
 k_table_col = 60;
-k_table_posX = setting_posX + 275;
+k_table_posX = f_table_pos(1) + f_table_pos(3);
 k_table_posY = MA_table_posY;
 k_table_h = MA_table_h;
 k_table_pos = [k_table_posX k_table_posY k_table_col k_table_h];
@@ -355,50 +380,66 @@ h.k_table = uitable (   "Data", f,
 );
 
 % Load reference data button
-button_height = 50;
-button_posX = MA_table_posX + 400;
-button_posY = MA_table_posY+MA_table_h-button_height;
-h.load_MA_uniform_button = uicontrol (  "style", "pushbutton",
-                                        "string", "Load uniform moment arm",
-                                        "callback", @updatePlot,
-                                        "position", [button_posX button_posY 200 button_height]
+MA_setting_label_posX = setting_posX;
+MA_setting_label_posY = MA_table_posY - 50;
+h.MA_setting_label = uicontrol (   "style", "text",
+                                "string", "Moment arm setting",
+                                "horizontalalignment", "left",
+                                "position", [MA_setting_label_posX MA_setting_label_posY 200 20]
 );
-button_posY = button_posY-60;
+
+button_width = 180;
+button_height = 50;
+button_posX = MA_setting_label_posX;
+button_posY = MA_setting_label_posY-(10+button_height);
+h.load_MA_uniform_button = uicontrol (  "style", "pushbutton",
+                                        "string", "Load uniform\nmoment arm",
+                                        "callback", @updatePlot,
+                                        "position", [button_posX button_posY button_width button_height]
+);
+button_posX = button_posX+button_width+20;
 h.load_MA_anthropomorphic_button = uicontrol (  "style", "pushbutton",
                                                 "string", "Load anthropomorphic\nmoment arm",
                                                 "callback", @updatePlot,
-                                                "position", [button_posX button_posY 200 button_height]
+                                                "position", [button_posX button_posY button_width button_height]
 );
-button_posY = button_posY-60;
+button_posX = button_posX+button_width+20;
 h.load_MA_monoarticular_button = uicontrol ("style", "pushbutton",
                                             "string", "Load monoarticular\nmoment arm",
                                             "callback", @updatePlot,
-                                            "position", [button_posX button_posY 200 button_height]
+                                            "position", [button_posX button_posY button_width button_height]
 );
-button_posY = button_posY-60;
+button_posX = MA_setting_label_posX;
+button_posY = MA_setting_label_posY-2*(10+button_height);
 h.load_MA_athlete_robot_button = uicontrol ("style", "pushbutton",
                                             "string", "Load Athlete Robot\ndata",
                                             "callback", @updatePlot,
-                                            "position", [button_posX button_posY 200 button_height]
+                                            "position", [button_posX button_posY button_width button_height]
+);
+button_posX = button_posX+button_width+20;
+h.load_ADMA_2014_button = uicontrol (   "style", "pushbutton",
+                                        "string", "Load Angle-Dependent\nMoment Arm\n(Athlete 2014 data)",
+                                        "callback", @updatePlot,
+                                        "position", [button_posX button_posY button_width button_height]
 );
 
 % Update plot button
+button_width = 180;
 button_height = 50;
-button_posX = MA_table_posX;
-button_posY = MA_table_posY-button_height-25;
+button_posX = setting_posX;
+button_posY = setting_posY-ax_pos(4);
 h.update_plot_button = uicontrol (  "style", "pushbutton",
                                     "string", "Update plot",
                                     "callback", @updatePlot,
-                                    "position", [button_posX button_posY 200 button_height]
+                                    "position", [button_posX button_posY button_width button_height]
 );
 
+button_posX = button_posX+button_width+20;
 % save figure
-save_img_posX = setting_posX;
-save_img_posY = setting_posY-ax_pos(4);
 h.save_image = uicontrol ("style", "pushbutton",
                         "string", "Save plot",
                         "callback", @updatePlot,
-                        "position", [save_img_posX save_img_posY 200 50]
+                        "position", [button_posX button_posY button_width button_height]
 );
 
 set (gcf, "color", get(0, "defaultuicontrolbackgroundcolor"))
@@ -406,5 +447,5 @@ guidata (gcf, h)
 
 % ============================ Initialization ============================
 % Show the initial MOFP
-[X J Q] = calculateMOFP(L,theta,G,f);
-drawMOFP(h.ax,X,Q);
+% [X J Q] = calculateMOFP(L,theta,G,f);
+% drawMOFP(h.ax,X,Q);
