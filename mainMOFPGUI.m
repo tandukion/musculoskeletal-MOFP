@@ -15,7 +15,7 @@ dataAthleteRobot2014
 
 % ============== Data initialization ==============
 % create global variables
-global L theta G f k mus_par mus_p;
+global L theta G f k mus_par mus_p ADMA_par;
 
 L = L_athlete_robot;
 theta = [-pi/3 -pi/2 2*pi/3]; % [hip knee ankle]
@@ -26,6 +26,8 @@ f = f_uniform;
 k = k_uniform;
 
 mus_par = mus_par_2014;
+
+ADMA_par = ADMA_par_2014;
 
 % Max pressure
 p_max = 0.8*10^6;
@@ -56,6 +58,12 @@ function [X J Q] = calculateMOFP (L, theta, G, f)
         disp("Creating the end-effector position and the Jacobian function for the first time");
         [Xfunc Jfunc] = forwardKinematics(sym_link, sym_theta);
         function_defined = true;
+
+        % disable warning
+        msg = 'passing floating-point values to sym is dangerous, see "help sym"';
+        id = 'OctSymPy:sym:rationalapprox';
+        S = warning ('off', id);
+        disp(strcat('Deactivate warning: ',msg))
     end
 
     % Substitute the symbolic to the numeric values
@@ -109,10 +117,28 @@ function MA = calculateMomentArmUsingADMA (ADMA_par, theta)
     end
 end
 
-function y = formatData(x)
+function F = calculateMuscleForcesWithADMA (mus_par, ADMA_par, theta, P)
+    % Calculate force for each muscle
+    for i = 1:size(ADMA_par,3)
+        % Calculate if muscle exists
+        if ~((mus_par(i,4) == 0) || isequal(ADMA_par(:,:,i), zeros(size(ADMA_par(:,:,i))) ))
+            F(i) = calculateMcKibbenForceWithADMA(mus_par(i,:), ADMA_par(:,:,i), theta, P(i));
+        else
+            F(i) = 0;
+        end
+    end
+    F = reshape(F,[10,1]);
+end
+
+function y = formatData(x, dec=4)
     % Format scientific notation to numeric float
     if (x~=0)
-        y = sprintf('%.4f',x);
+        switch (dec)
+        case {1}
+            y = sprintf('%.1f',x);
+        case {4}
+            y = sprintf('%.4f',x);
+        end
     else
         y=x;
     end
@@ -193,7 +219,7 @@ function updatePlot (obj)
         % p
         case {h.p_table}
             p_mpa = get (h.p_table, "Data");    % uitable data is in MPa.
-            mus_p = arrayfun(@(x) x*10^6, p_mpa)
+            mus_p = arrayfun(@(x) x*10^6, p_mpa);
 
         % pre-defined data button
         % This will not update the plot
@@ -214,9 +240,8 @@ function updatePlot (obj)
             G = G_base .* MA_athlete_robot;
             set(h.MA_table, "Data", arrayfun(@(x) formatData(x),G,'UniformOutput',false));
         case {h.load_ADMA_2014_button}
-            format short g
-            global G_base ADMA_par_2014;
-            MA = calculateMomentArmUsingADMA (ADMA_par_2014, theta);
+            global G_base ADMA_par;
+            MA = calculateMomentArmUsingADMA (ADMA_par, theta);
             G = G_base .* MA;
             set(h.MA_table, "Data", arrayfun(@(x) formatData(x),G,'UniformOutput',false));
 
@@ -228,6 +253,10 @@ function updatePlot (obj)
             global f_robot_2010;
             f = f_robot_2010;
             set(h.f_table, "Data", f);
+        case {h.load_f_with_ADMA_button}
+            global ADMA_par;
+            f = calculateMuscleForcesWithADMA(mus_par, ADMA_par, theta, mus_p)
+            set(h.f_table, "Data", arrayfun(@(x) formatData(x,dec=1),f,'UniformOutput',false));
         
         case {h.update_plot_button}
             recalc = true;
@@ -383,7 +412,7 @@ h.MA_table = uitable (  "Data", G,
 );
 
 % Force table
-f_table_col = 60;
+f_table_col = 70;
 f_table_posX = setting_posX + MA_table_pos(3);
 f_table_posY = MA_table_posY;
 f_table_h = MA_table_h;
@@ -526,6 +555,12 @@ h.load_f_uniform_button = uicontrol (  "style", "pushbutton",
 button_posX = button_posX+button_width+20;
 h.load_f_athlete_robot_button = uicontrol ( "style", "pushbutton",
                                             "string", "Load Athlete Robot\nforce data",
+                                            "callback", @updatePlot,
+                                            "position", [button_posX button_posY button_width button_height]
+);
+button_posX = button_posX+button_width+20;
+h.load_f_with_ADMA_button = uicontrol ( "style", "pushbutton",
+                                            "string", "Calculate force with\nADMA parameter",
                                             "callback", @updatePlot,
                                             "position", [button_posX button_posY button_width button_height]
 );
