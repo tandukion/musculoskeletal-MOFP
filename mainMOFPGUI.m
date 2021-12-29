@@ -15,7 +15,7 @@ dataAthleteRobot2014
 
 % ============== Data initialization ==============
 % create global variables
-global L theta G f k;
+global L theta G f k mus_par;
 
 L = L_athlete_robot;
 theta = [-pi/3 -pi/2 2*pi/3]; % [hip knee ankle]
@@ -24,6 +24,8 @@ G = G_base .* MA_uniform;
 f = f_uniform;
 
 k = k_uniform;
+
+mus_par = mus_par_2014;
 
 % To decrease calculation time, create function holders
 global function_defined sym_link sym_theta Xfunc Jfunc;
@@ -86,8 +88,9 @@ function C = calculateCompliance (J, G, k)
 end
 
 function MA = calculateMomentArmUsingADMA (ADMA_par, theta)
-    % ADMA_par
-    % theta
+    % only use [a b c d r] part of ADMA
+    ADMA_par = ADMA_par(1:5,:,:);
+
     % Calculate ADMA for each muscle
     for i = 1:size(ADMA_par,3)
         % Calculate ADMA for each joint
@@ -228,7 +231,7 @@ function updatePlot (obj)
 end
 
 % ============================ GUI settings ============================
-figure(1, "position",[400,400,1400,900]);
+figure(1, "position",[200,400,1500,900]);
 
 ax_pos = [50 50 700 800];
 h.ax = axes ("units", "pixels", "position", ax_pos);
@@ -408,6 +411,26 @@ h.k_table = uitable (   "Data", f,
                         "Position", k_table_pos
 );
 
+% McKibben parameter table
+table_col = 60;
+mus_table_posX = k_table_pos(1) + k_table_pos(3) + 20;
+mus_table_posY = setting_posY-400;
+mus_table_h = 235;
+mus_table_pos = [mus_table_posX mus_table_posY 4*table_col+10 mus_table_h];
+h.mus_table_label = uicontrol ( "style", "text",
+                                "string", "McKibben parameter",
+                                "horizontalalignment", "center",
+                                "position", [mus_table_pos(1) mus_table_pos(2)+mus_table_pos(4) mus_table_pos(3) 20]
+);
+h.mus_table = uitable (  "Data", mus_par,
+                        "ColumnEditable",true,
+                        "ColumnName", {"D0";"theta0";"Lmax";"Num"},
+                        "RowName", "",
+                        "CellEditCallback", @updatePlot,
+                        "ColumnWidth", repmat({table_col}, 1, size(mus_par,2)),
+                        "Position", mus_table_pos
+);
+
 % Moment arm setting
 MA_setting_label_posX = setting_posX;
 MA_setting_label_posY = MA_table_posY - 50;
@@ -500,5 +523,5 @@ guidata (gcf, h)
 
 % ============================ Initialization ============================
 % Show the initial MOFP
-[X J Q] = calculateMOFP(L,theta,G,f);
-drawMOFP(h.ax,X,Q);
+% [X J Q] = calculateMOFP(L,theta,G,f);
+% drawMOFP(h.ax,X,Q);
