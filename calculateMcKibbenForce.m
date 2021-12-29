@@ -15,7 +15,7 @@ function F = calculateMcKibbenForce(D0,theta0,L0,L,P)
     % Calculate supporting variables
     A = 3 / (tan(theta0))^2;
     B = 1 / (sin(theta0))^2;
-    epsilon = (L0 - L) / L;
+    epsilon = (L0 - L) / L0;
 
     % Calculate output force
     F = pi * D0^2 * P * (A * (1-epsilon)^2 - B) / 4;
